@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<openerp>
+    <data>
+        <record model="ir.ui.view" id="sale_order_line_dimensions_form">
+            <field name="name">sale.order.line.dimensions.form</field>
+            <field name="model">sale.order</field>
+            <field name="inherit_id" ref="sale.view_order_form" />
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='order_line']/tree"
+                       position="attributes">
+                    <attribute name="editable"/>
+                </xpath>
+                <xpath
+                        expr="//field[@name='order_line']/form//field[@name='analytic_tag_ids']/.." position="after">
+                    <group string="Dimensions" name="dimensions">
+                        <field name="diameter"/>
+                        <field name="length"/>
+                        <field name="material_type"/>
+                        <field name="casting"/>
+                        <field name="finish"/>
+                        <field name="homologation_type"/>
+                        <field name="weight"/>
+                    </group>
+                </xpath>
+            </field>
+        </record>
+
+    </data>
+</openerp>
