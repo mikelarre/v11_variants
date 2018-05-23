@@ -49,6 +49,7 @@ class SaleOrderLine(models.Model):
     # Needed for getting the lang variable for translating descriptions
     partner_id = fields.Many2one(related='order_id.partner_id', readonly=True)
 
+    @api.model
     def create(self, values):
         value_obj = self.env['product.attribute.value']
         for line in values.get('product_attribute_ids', False):

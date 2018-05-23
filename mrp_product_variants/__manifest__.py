@@ -9,6 +9,8 @@
     "depends": [
         "product",
         "product_variants_no_automatic_creation",
+        "mrp_scheduled_products",
+        "product_variants_types"
     ],
     "author": "OdooMRP team, "
               "AvanzOSC, "

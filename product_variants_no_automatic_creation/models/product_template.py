@@ -47,7 +47,8 @@ class ProductTemplate(models.Model):
         if not self:
             return []
         self.ensure_one()
-        return self.attribute_line_ids.mapped(
+        return self.attribute_line_ids.filtered(
+            lambda x: x.attribute_id.create_variant).mapped(
             lambda x: {'attribute_id': x.attribute_id.id})
 
     @api.multi
