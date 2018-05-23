@@ -17,7 +17,7 @@
         "Oihane Crucelaegui <oihanecrucelaegi@avanzosc.es>",
     ],
     "depends": [
-        "mrp",
+        "mrp", "mrp_scheduled_products"
     ],
     "data": [
         "views/mrp_production_view.xml",

@@ -11,6 +11,7 @@
         "product",
         "sale",
         "product_variants_no_automatic_creation",
+        "mrp_scheduled_products",
     ],
     "author": "OdooMRP team, "
               "AvanzOSC, "
