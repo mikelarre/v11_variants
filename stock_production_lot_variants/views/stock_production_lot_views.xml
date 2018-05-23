@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<openerp>
+    <data>
+        <record model="ir.ui.view"
+                id="stock_production_lot_attribute_ids_form">
+            <field name="name">stock.production.lot.attribute.ids.form</field>
+            <field name="model">stock.production.lot</field>
+            <field name="inherit_id" ref="stock.view_production_lot_form" />
+            <field name="arch" type="xml">
+                <field name="ref" position="before">
+                    <field name="product_attribute_ids" />
+                </field>
+            </field>
+        </record>
+        
+    </data>
+</openerp>
