@@ -27,7 +27,7 @@ class ProductProduct(models.Model):
     @api.multi
     def _get_product_attributes_values_dict(self):
         # Retrieve first the attributes from template to preserve order
-        res = self.product_tmpl_id._get_product_attributes_dict()
+        res = self.product_tmpl_id._get_product_attributes_dict(all=True)
         for val in res:
             value = self.attribute_value_ids.filtered(
                 lambda x: x.attribute_id.id == val['attribute_id'])
@@ -44,13 +44,15 @@ class ProductProduct(models.Model):
     def _build_attributes_domain(self, product_template, product_attributes):
         domain = []
         cont = 0
+        value_obj = self.env['product.attribute.value']
         if product_template:
             domain.append(('product_tmpl_id', '=', product_template.id))
             for attr_line in product_attributes:
                 if isinstance(attr_line, dict):
                     value_id = attr_line.get('value_id')
+                    value_id = value_obj.browse(value_id).attribute_id.create_variant and value_id
                 else:
-                    value_id = attr_line.value_id.id
+                    value_id = attr_line.attribute_id.create_variant and attr_line.value_id.id
                 if value_id:
                     domain.append(('attribute_value_ids', '=', value_id))
                     cont += 1

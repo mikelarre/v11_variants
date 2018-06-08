@@ -156,7 +156,7 @@ class MrpProduction(models.Model):
                     attr_line['owner_model'] = 'mrp.production.product.line'
                     attr_line['product_tmpl_id'] = product_tmpl.id
                 prod_line = {
-                    'name': product.name,
+                    'name': product.name or product_tmpl.name,
                     'product_tmpl_id': product_tmpl.id,
                     'product_id': product.id,
                     'product_attribute_ids': [
