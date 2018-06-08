@@ -12,7 +12,7 @@ class MrpProduction(models.Model):
     @api.model
     def create(self, values):
         value_obj = self.env['product.attribute.value']
-        for line in values.get('product_attribute_ids', False):
+        for line in values.get('product_attribute_ids', []):
             value = value_obj.browse(line[2]['value_id'])
             line[2].update({'attribute_id': value.attribute_id.id})
         return super(MrpProduction, self).create(values)
@@ -21,8 +21,10 @@ class MrpProduction(models.Model):
     def write(self, values):
         value_obj = self.env['product.attribute.value']
         for line in values.get('product_attribute_ids', []):
-            value = value_obj.browse(line[2]['value_id'])
-            line[2].update({'attribute_id': value.attribute_id.id})
+            if line[0] == 0:
+                value = value_obj.browse(line[2]['value_id'])
+                line[2].update({'attribute_id': value.attribute_id.id})
+
         return super(MrpProduction, self).write(values)
 
     @api.multi

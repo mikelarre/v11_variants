@@ -6,24 +6,27 @@ from odoo import api, models
 
 
 class ProcurementOrder(models.Model):
-    _inherit = 'procurement.order'
+    _inherit = 'procurement.rule'
 
     @api.model
-    def _prepare_mo_vals(self, procurement):
-        result = super(ProcurementOrder, self)._prepare_mo_vals(procurement)
-        product_id = result.get('product_id')
-        product = self.env['product.product'].browse(product_id)
-        result['product_tmpl_id'] = product.product_tmpl_id.id
-        product_attribute_ids = product._get_product_attributes_values_dict()
-        result['product_attribute_ids'] = map(
-            lambda x: (0, 0, x), product_attribute_ids)
+    def _prepare_mo_vals(self, product_id, product_qty, product_uom,
+                         location_id, name, origin, values, bom):
+        result = super(ProcurementOrder, self)._prepare_mo_vals(
+            product_id, product_qty, product_uom, location_id, name, origin,
+            values, bom)
+        result['product_tmpl_id'] = product_id.product_tmpl_id.id
+        product_attribute_ids = \
+            product_id._get_product_attributes_values_dict()
+        result['product_attribute_ids'] = list(map(
+            lambda x: (0, 0, x), product_attribute_ids))
         for val in result['product_attribute_ids']:
             val = val[2]
-            val['product_tmpl_id'] = product.product_tmpl_id.id
+            val['product_tmpl_id'] = product_id.product_tmpl_id.id
             val['owner_model'] = 'mrp.production'
             try:
-                sale_line = procurement.move_dest_id.procurement_id.\
-                    sale_line_id
+                move_dest_id = values.get('move_dest_ids', self.env[
+                    'stock.move'])
+                sale_line = move_dest_id.sale_line_id
                 attr_lines = sale_line.product_attribute_ids.filtered(
                     lambda x: x.attribute_id.id == val['attribute_id'])
                 if attr_lines:
