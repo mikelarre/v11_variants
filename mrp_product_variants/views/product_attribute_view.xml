@@ -11,5 +11,15 @@
                 </field>
             </field>
         </record>
+        <record model="ir.ui.view" id="product_attribute_inherits_form_view">
+            <field name="name">product.attribute.inherits.form</field>
+            <field name="model">product.attribute</field>
+            <field name="inherit_id" ref="product.product_attribute_view_form" />
+            <field name="arch" type="xml">
+                <field name="create_variant" position="before">
+                    <field name="parent_inherited" />
+                </field>
+            </field>
+        </record>
     </data>
 </openerp>
