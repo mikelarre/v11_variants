@@ -15,19 +15,22 @@ class ProcurementOrder(models.Model):
             product_id, product_qty, product_uom, location_id, name, origin,
             values, bom)
         result['product_tmpl_id'] = product_id.product_tmpl_id.id
+        move_dest_id = values.get('move_dest_ids', self.env[
+            'stock.move'])
+        product_attributes = move_dest_id.sale_line_id.product_attribute_ids
         product_attribute_ids = \
-            product_id._get_product_attributes_values_dict()
+            product_id.with_context(
+                all_attributes=product_attributes
+            )._get_product_attributes_values_dict()
         result['product_attribute_ids'] = list(map(
             lambda x: (0, 0, x), product_attribute_ids))
+
         for val in result['product_attribute_ids']:
             val = val[2]
             val['product_tmpl_id'] = product_id.product_tmpl_id.id
             val['owner_model'] = 'mrp.production'
             try:
-                move_dest_id = values.get('move_dest_ids', self.env[
-                    'stock.move'])
-                sale_line = move_dest_id.sale_line_id
-                attr_lines = sale_line.product_attribute_ids.filtered(
+                attr_lines = product_attributes.filtered(
                     lambda x: x.attribute_id.id == val['attribute_id'])
                 if attr_lines:
                     val['custom_value'] = attr_lines[:1].custom_value

@@ -8,9 +8,9 @@ from odoo import models
 class ProductTemplate(models.Model):
     _inherit = 'product.template'
 
-    def _get_product_attributes_dict(self, all=False):
+    def _get_product_attributes_dict(self):
         product_attributes = super(
-            ProductTemplate, self)._get_product_attributes_dict(all)
+            ProductTemplate, self)._get_product_attributes_dict()
         for attribute in product_attributes:
             line = self.env['product.attribute.line'].search(
                 [('attribute_id', '=', attribute['attribute_id']),
