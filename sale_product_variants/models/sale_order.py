@@ -120,7 +120,7 @@ class SaleOrderLine(models.Model):
                         [(6, 0,
                           line.product_attribute_ids.mapped('value_id').ids)]})
             line.write({'product_id': product.id})
-        super(SaleOrderLine, self).button_confirm()
+        return super(SaleOrderLine, self).button_confirm()
 
     @api.multi
     def update_price_unit(self):

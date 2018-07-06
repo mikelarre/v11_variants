@@ -30,7 +30,7 @@ class ProductProduct(models.Model):
         attribute_ids = self.env.context.get('all_attributes')
         if attribute_ids:
             res = self.product_tmpl_id.with_context(
-                all_attributes=True)._get_product_attributes_dict()
+                all_attributes=attribute_ids)._get_product_attributes_dict()
             no_variant_attributes = attribute_ids.filtered(
                 lambda x: not x.attribute_id.create_variant)
             for val in res:

@@ -31,29 +31,3 @@ class MrpProductProduce(models.TransientModel):
             attributes = self.production_id.product_attribute_ids
             self.lot_id = lot_obj._create_lot(self.product_id, attributes)
             return super().check_finished_move_lots()
-
-    # @api.multi
-    # def check_finished_move_lots(self):
-    #     produce_move = self.production_id.move_finished_ids.filtered(lambda x: x.product_id == self.product_id and x.state not in ('done', 'cancel'))
-    #     if produce_move and produce_move.product_id.tracking != 'none':
-    #         if not self.lot_id:
-    #             raise UserError(_('You need to provide a lot for the finished product'))
-    #         existing_move_line = produce_move.move_line_ids.filtered(lambda x: x.lot_id == self.lot_id)
-    #         if existing_move_line:
-    #             if self.product_id.tracking == 'serial':
-    #                 raise UserError(_('You cannot produce the same serial number twice.'))
-    #             existing_move_line.product_uom_qty += self.product_qty
-    #             existing_move_line.qty_done += self.product_qty
-    #         else:
-    #             vals = {
-    #               'move_id': produce_move.id,
-    #               'product_id': produce_move.product_id.id,
-    #               'production_id': self.production_id.id,
-    #               'product_uom_qty': self.product_qty,
-    #               'product_uom_id': produce_move.product_uom.id,
-    #               'qty_done': self.product_qty,
-    #               'lot_id': self.lot_id.id,
-    #               'location_id': produce_move.location_id.id,
-    #               'location_dest_id': produce_move.location_dest_id.id,
-    #             }
-    #             self.env['stock.move.line'].create(vals)
