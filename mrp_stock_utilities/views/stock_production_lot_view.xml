@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<openerp>
+    <data>
+        <record model="ir.ui.view" id="stock_production_lot_utilities_form">
+            <field name="name">stock.production.lot.utilities.form</field>
+            <field name="model">stock.production.lot</field>
+            <field name="inherit_id" ref="stock.view_production_lot_form" />
+            <field name="arch" type="xml">
+                <xpath expr="//sheet/div/button[2]"
+                       position="after">
+                    <button string="Pickings"
+                    type="object"
+                    name= "action_related_picking"
+                    class="oe_stat_button" icon="fa-book"
+                    />
+                    <button string="Manufacturing Orders"
+                    type="object"
+                    name= "action_related_mo"
+                    class="oe_stat_button" icon="fa-list-alt"
+                    />
+                </xpath>
+
+                <xpath expr="//field[@name='product_id']/following-sibling::div"
+                       position="after">
+                    <field name="reserved_quantity" />
+                </xpath>
+            </field>
+        </record>
+
+    </data>
+</openerp>

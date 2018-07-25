@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<openerp>
+    <data>
+        <record model="ir.ui.view" id="mrp_stock_move_active_lots">
+            <field name="name">mrp.stock.move.active.form</field>
+            <field name="model">mrp.production</field>
+            <field name="inherit_id" ref="mrp.mrp_production_form_view" />
+            <field name="arch" type="xml">
+                <field name="needs_lots" position="after">
+                    <field name="line_lots_ids" widget="many2many_tags"/>
+                </field>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="create_edit_lots_view">
+            <field name="name">create.edit.lots.form</field>
+            <field name="model">stock.move</field>
+            <field name="inherit_id" ref="mrp.view_stock_move_lots" />
+            <field name="arch" type="xml">
+                <field name="active_move_line_ids" position="attributes">
+                    <attribute name="attrs">{'invisible': [('has_tracking',
+                        '=', 'none'), ('finished_lots_exist', '=', False)],
+                        'readonly':[('state', '=', 'done')
+                        ]}</attribute>
+                </field>
+                <xpath expr="//tree/field[@name='product_qty']"
+                       position="after">
+                    <field name="product_uom_qty"/>
+                    <field name="location_id"/>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</openerp>
