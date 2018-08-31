@@ -13,8 +13,9 @@ class ProductTemplate(models.Model):
     _inherit = 'product.template'
 
     def _get_product_attribute_ids_inherit_dict(self, product_attribute_list):
-        product_attribute_ids = self._get_product_attributes_dict()
-        for attr in product_attribute_ids:
+        product_attribute_ids, template_attribute_ids = \
+            self._get_product_attributes_dict()
+        for attr in product_attribute_ids + template_attribute_ids:
             if self.env['product.attribute'].browse(
                     attr['attribute_id']).parent_inherited:
                 for attr_line in product_attribute_list:
@@ -25,4 +26,4 @@ class ProductTemplate(models.Model):
                                          attr_line.custom_value})
                         except Exception:
                             pass
-        return product_attribute_ids
+        return product_attribute_ids, template_attribute_ids

@@ -16,6 +16,11 @@ class ProductConfigurator(models.AbstractModel):
         comodel_name='product.configurator.attribute',
         domain=lambda self: [("owner_model", "=", self._name)],
         inverse_name='owner_id', string='Product attributes', copy=True)
+    product_template_attribute_ids = fields.One2many(
+        comodel_name='product.configurator.attribute',
+        domain=lambda self: [("owner_model", "=", self._name)],
+        inverse_name='template_owner_id', string='Product template attributes',
+        copy=True)
     price_extra = fields.Float(
         compute='_compute_price_extra',
         digits=dp.get_precision('Product Price'),
@@ -39,23 +44,36 @@ class ProductConfigurator(models.AbstractModel):
         # First, empty current list
         self.product_attribute_ids = [
             (2, x.id) for x in self.product_attribute_ids]
+        self.product_attribute_ids = [
+            (2, x.id) for x in self.product_template_attribute_ids]
         if not self.product_tmpl_id.attribute_line_ids:
             self.product_id = self.product_tmpl_id.product_variant_ids
         else:
             if not self.env.context.get('not_reset_product') and \
                     self.product_id:
                 self.product_id = False
-            attribute_list = []
+            product_attribute_list = []
+            template_attribute_list = []
             for attribute_line in self.product_tmpl_id.attribute_line_ids:
-                attribute_list.append({
+                attribute = {
                     'attribute_id': attribute_line.attribute_id.id,
                     'product_tmpl_id': self.product_tmpl_id.id,
                     'owner_model': self._name,
-                    'owner_id': self.id,
-                })
-            self.product_attribute_ids = [(0, 0, x) for x in attribute_list]
+
+                }
+                if attribute_line.attribute_id.create_variant:
+                    attribute.update({'owner_id': self.id})
+                    product_attribute_list.append(attribute)
+                else:
+                    attribute.update({'template_owner_id': self.id})
+                    template_attribute_list.append(attribute)
+            self.product_attribute_ids = [
+                (0, 0, x) for x in product_attribute_list]
+            self.product_template_attribute_ids = [(0, 0, x) for x in
+                                          template_attribute_list]
         # Needed because the compute method is not triggered
         self.product_attribute_ids._compute_possible_value_ids()
+        self.product_template_attribute_ids._compute_possible_value_ids()
         # Restrict product possible values to current selection
         domain = [('product_tmpl_id', '=', self.product_tmpl_id.id)]
         return {'domain': {'product_id': domain}}
@@ -99,19 +117,27 @@ class ProductConfigurator(models.AbstractModel):
         # First, empty current list
         self.product_attribute_ids = [
             (2, x.id) for x in self.product_attribute_ids]
+        self.product_attribute_ids = [
+            (2, x.id) for x in self.product_template_attribute_ids]
         if self.product_id:
-            attribute_list = (
+            attribute_list, template_attributes = (
                 self.product_id._get_product_attributes_values_dict())
             for val in attribute_list:
                 val['product_tmpl_id'] = self.product_id.product_tmpl_id
                 val['owner_model'] = self._name
                 val['owner_id'] = self.id
+            for val in template_attributes:
+                val['product_tmpl_id'] = self.product_id.product_tmpl_id
+                val['owner_model'] = self._name
+                val['template_owner_id'] = self.id
             product = self.product_id
             if self._fields.get('partner_id'):
                 # If our model has a partner_id field, language is got from it
                 product = self.env['product.product'].with_context(
                     lang=self.partner_id.lang).browse(self.product_id.id)
             self.product_attribute_ids = [(0, 0, x) for x in attribute_list]
+            self.product_template_attribute_ids = [(0, 0, x) for x in
+                                                   template_attributes]
             self.name = self._get_product_description(
                 product.product_tmpl_id, product, product.attribute_value_ids)
 
@@ -132,13 +158,21 @@ class ProductConfigurator(models.AbstractModel):
                 partner = self.env['res.partner'].browse(partner_id)
                 product_obj = product_obj.with_context(lang=partner.lang)
             product = product_obj.browse(product_id)
-            attr_values_dict = product._get_product_attributes_values_dict()
+            attr_values_dict, template_attributes = \
+                product._get_product_attributes_values_dict()
             for val in attr_values_dict:
                 val['product_tmpl_id'] = product.product_tmpl_id.id
                 val['owner_model'] = self._name
                 val['owner_id'] = self.id
+            for val in template_attributes:
+                val['product_tmpl_id'] = product.product_tmpl_id.id
+                val['owner_model'] = self._name
+                val['template_owner_id'] = self.id
             attr_values = [(0, 0, values) for values in attr_values_dict]
+            template_attr_values = [(0, 0, values) for values in
+                                    template_attributes]
             res['product_attribute_ids'] = attr_values
+            res['product_template_attribute_ids'] = template_attr_values
             res['name'] = self._get_product_description(
                 product.product_tmpl_id, product,
                 product.attribute_value_ids)
@@ -146,15 +180,23 @@ class ProductConfigurator(models.AbstractModel):
 
     @api.model
     def _order_attributes(self, template, product_attribute_values):
-        res = template._get_product_attributes_dict()
+        product_attributes, template_attributes = \
+            template._get_product_attributes_dict()
+        res = []
         res2 = []
-        for val in res:
+        for val in product_attributes:
+            value = product_attribute_values.filtered(
+                lambda x: x.attribute_id.id == val['attribute_id'])
+            if value:
+                val['value_id'] = value
+                res.append(val)
+        for val in template_attributes:
             value = product_attribute_values.filtered(
                 lambda x: x.attribute_id.id == val['attribute_id'])
             if value:
                 val['value_id'] = value
                 res2.append(val)
-        return res2
+        return res, res2
 
     @api.model
     def _get_product_description(self, template, product, product_attributes):
@@ -164,7 +206,8 @@ class ProductConfigurator(models.AbstractModel):
             'group_product_variant_extended_description')
         if not product_attributes and product:
             product_attributes = product.attribute_value_ids
-        values = self._order_attributes(template, product_attributes)
+        values, template_values = self._order_attributes(
+            template, product_attributes)
         if extended:
             description = "\n".join(
                 "%s: %s" %
@@ -179,7 +222,8 @@ class ProductConfigurator(models.AbstractModel):
     @api.multi
     def unlink(self):
         """Mimic `ondelete="cascade"`."""
-        attributes = self.mapped("product_attribute_ids")
+        attributes = self.mapped("product_attribute_ids") | self.mapped(
+            "product_template_attribute_ids")
         result = super(ProductConfigurator, self).unlink()
         if result:
             attributes.unlink()
@@ -247,7 +291,8 @@ class ProductConfigurator(models.AbstractModel):
 class ProductConfiguratorAttribute(models.Model):
     _name = 'product.configurator.attribute'
 
-    owner_id = fields.Integer(string="Owner", required=True)
+    owner_id = fields.Integer(string="Owner")
+    template_owner_id = fields.Integer(string="Owner")
     owner_model = fields.Char(required=True)
     product_tmpl_id = fields.Many2one(
         comodel_name='product.template', string='Product Template',
@@ -268,6 +313,11 @@ class ProductConfiguratorAttribute(models.Model):
         help="Price Extra: Extra price for the variant with this attribute "
              "value on sale price. eg. 200 price extra, 1000 + 200 = 1200.")
 
+    @api.constrains('owner_id', 'template_owner_id')
+    def owner_required(self):
+        if not(self.owner_id or self.template_owner_id):
+            raise exceptions.ValidationError(_("Owner is required"))
+
     @api.multi
     @api.depends('attribute_id')
     def _compute_possible_value_ids(self):
@@ -286,3 +336,4 @@ class ProductConfiguratorAttribute(models.Model):
                     lambda x: (
                         x.product_tmpl_id == record.product_tmpl_id)
                 ).mapped('price_extra'))
+

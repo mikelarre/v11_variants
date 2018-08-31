@@ -27,28 +27,29 @@ class ProductProduct(models.Model):
     @api.multi
     def _get_product_attributes_values_dict(self):
         # Retrieve first the attributes from template to preserve order
-        attribute_ids = self.env.context.get('all_attributes')
-        if attribute_ids:
-            res = self.product_tmpl_id.with_context(
-                all_attributes=attribute_ids)._get_product_attributes_dict()
-            no_variant_attributes = attribute_ids.filtered(
-                lambda x: not x.attribute_id.create_variant)
-            for val in res:
-                value = self.attribute_value_ids.filtered(
-                    lambda x: x.attribute_id.id == val['attribute_id'])
-                if value:
-                    val['value_id'] = value.id
-                else:
-                    val['value_id'] = no_variant_attributes.filtered(
-                        lambda x: x.attribute_id.id == val[
-                            'attribute_id']).value_id.id
-            return res
-        res = self.product_tmpl_id._get_product_attributes_dict()
-        for val in res:
+        # attribute_ids = self.env.context.get('all_attributes')
+        # if attribute_ids:
+        #     res = self.product_tmpl_id.with_context(
+        #         all_attributes=attribute_ids)._get_product_attributes_dict()
+        #     no_variant_attributes = attribute_ids.filtered(
+        #         lambda x: not x.attribute_id.create_variant)
+        #     for val in res:
+        #         value = self.attribute_value_ids.filtered(
+        #             lambda x: x.attribute_id.id == val['attribute_id'])
+        #         if value:
+        #             val['value_id'] = value.id
+        #         else:
+        #             val['value_id'] = no_variant_attributes.filtered(
+        #                 lambda x: x.attribute_id.id == val[
+        #                     'attribute_id']).value_id.id
+        #     return res
+        product_attributes, template_attributes \
+            = self.product_tmpl_id._get_product_attributes_dict()
+        for val in product_attributes + template_attributes:
             value = self.attribute_value_ids.filtered(
                 lambda x: x.attribute_id.id == val['attribute_id'])
             val['value_id'] = value.id
-        return res
+        return product_attributes, template_attributes
 
 
     @api.multi

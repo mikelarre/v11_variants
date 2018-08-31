@@ -12,15 +12,20 @@ class MrpProduction(models.Model):
     @api.model
     def create(self, values):
         value_obj = self.env['product.attribute.value']
-        for line in values.get('product_attribute_ids', []):
+        for line in values.get('product_attribute_ids', []) + values.get(
+                'product_template_attribute_ids', []):
             value = value_obj.browse(line[2]['value_id'])
             line[2].update({'attribute_id': value.attribute_id.id})
+        if not values.get('routing_id'):
+            bom_id = self.env['mrp.bom'].browse(values.get('bom_id'))
+            values.update({'routing_id': bom_id.routing_id.id or False})
         return super(MrpProduction, self).create(values)
 
     @api.multi
     def write(self, values):
         value_obj = self.env['product.attribute.value']
-        for line in values.get('product_attribute_ids', []):
+        for line in values.get('product_attribute_ids', []) + values.get(
+                'product_template_attribute_ids', []):
             if line[0] == 0:
                 value = value_obj.browse(line[2]['value_id'])
                 line[2].update({'attribute_id': value.attribute_id.id})
@@ -65,6 +70,8 @@ class MrpProduction(models.Model):
         res = super(MrpProduction,
                     self).onchange_product_id_product_configurator()
         self.name = name
+        if not self.routing_id and self.bom_id:
+            self.routing_id = self.bom_id.routing_id
         return res
 
     @api.multi
@@ -147,12 +154,13 @@ class MrpProduction(models.Model):
                 bom_line = line[0]
 
                 product_tmpl = bom_line.product_tmpl_id
-                product_attribute_ids = (
+                product_attribute_ids, tmpl_attribute_ids = (
                     product_tmpl._get_product_attribute_ids_inherit_dict(
-                        production.product_attribute_ids))
+                        production.product_attribute_ids +
+                        production.product_template_attribute_ids))
                 product = bom_line.product_id or product_obj._product_find(
                         product_tmpl, product_attribute_ids) or product_obj
-                for attr_line in product_attribute_ids:
+                for attr_line in product_attribute_ids + tmpl_attribute_ids:
                     attr_line['owner_model'] = 'mrp.production.product.line'
                     attr_line['product_tmpl_id'] = product_tmpl.id
                 prod_line = {
@@ -161,6 +169,7 @@ class MrpProduction(models.Model):
                     'product_id': product.id,
                     'product_attribute_ids': [
                         (0, 0, x) for x in product_attribute_ids],
+                    'product_template_attribute_ids': tmpl_attribute_ids,
                     'product_qty': line_data['qty'],
                     'bom_line_id': bom_line.id,
                     'product_uom': bom_line.product_uom_id.id,

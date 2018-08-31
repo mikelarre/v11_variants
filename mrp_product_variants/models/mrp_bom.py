@@ -21,7 +21,7 @@ class MrpBomLine(models.Model):
     product_uom_category = fields.Many2one(
         comodel_name='product.uom.categ', string='UoM category',
         compute="_compute_product_category")
-    product_uom = fields.Many2one(
+    product_uom = fields.Many2one(comodel_name='product.uom',
         domain="[('category_id', '=', product_uom_category)]")
 
     @api.depends('product_id', 'product_tmpl_id')
@@ -108,9 +108,10 @@ class MrpBom(models.Model):
                 if not production and active_model == 'mrp.production':
                     production = self.env['mrp.production'].browse(
                         self.env.context.get('active_id'))
-                product_attribute_ids = (
+                product_attribute_ids, template_attribute_ids = (
                     tmpl_id._get_product_attribute_ids_inherit_dict(
-                        production.product_attribute_ids))
+                        production.product_attribute_ids +
+                        production.product_template_attribute_ids))
                 comp_product = self.env['product.product']._product_find(
                     tmpl_id, product_attribute_ids)
                 return self._bom_find(

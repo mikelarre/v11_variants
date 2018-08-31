@@ -52,7 +52,8 @@ class SaleOrderLine(models.Model):
     @api.model
     def create(self, values):
         value_obj = self.env['product.attribute.value']
-        for line in values.get('product_attribute_ids', False):
+        for line in values.get('product_attribute_ids', []) + values.get(
+                'product_template_attribute_ids', []):
             value = value_obj.browse(line[2]['value_id'])
             line[2].update({'attribute_id': value.attribute_id.id})
         return super(SaleOrderLine, self).create(values)

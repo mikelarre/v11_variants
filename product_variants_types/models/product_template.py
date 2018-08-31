@@ -9,11 +9,11 @@ class ProductTemplate(models.Model):
     _inherit = 'product.template'
 
     def _get_product_attributes_dict(self):
-        product_attributes = super(
+        product_attributes, template_attributes = super(
             ProductTemplate, self)._get_product_attributes_dict()
-        for attribute in product_attributes:
+        for attribute in product_attributes + template_attributes:
             line = self.env['product.attribute.line'].search(
                 [('attribute_id', '=', attribute['attribute_id']),
                  ('product_tmpl_id', '=', self.id)], limit=1)
             attribute.update({'value_id': line.default.id})
-        return product_attributes
+        return product_attributes, template_attributes

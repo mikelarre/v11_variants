@@ -35,6 +35,10 @@
                            context="{'default_owner_model': 'sale.order.line', 'default_owner_id': id}"
                            attrs="{'invisible':[('product_attribute_ids','=',[])]}"
                     />
+                    <field name="product_template_attribute_ids"
+                           context="{'default_owner_model': 'sale.order.line', 'default_owner_id': id}"
+                           attrs="{'invisible':[('product_template_attribute_ids','=',[])]}"
+                    />
                     <field name="order_state"/>
                 </xpath>
                 <xpath expr="//field[@name='order_line']//form//field[@name='price_unit']"

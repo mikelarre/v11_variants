@@ -45,15 +45,17 @@ class ProductTemplate(models.Model):
     @api.multi
     def _get_product_attributes_dict(self):
         if not self:
-            return []
+            return [], []
         self.ensure_one()
-        attribute_line_ids = self.env.context.get('all_attributes')
-        if not attribute_line_ids:
-            return self.attribute_line_ids.filtered(
+        #attribute_line_ids = self.env.context.get('all_attributes')
+        #if not attribute_line_ids:
+        product_attributes = self.attribute_line_ids.filtered(
                 lambda x: x.attribute_id.create_variant).mapped(
                 lambda x: {'attribute_id': x.attribute_id.id})
-        return self.attribute_line_ids.mapped(
+        template_attributes = self.attribute_line_ids.filtered(
+            lambda x: not x.attribute_id.create_variant).mapped(
             lambda x: {'attribute_id': x.attribute_id.id})
+        return product_attributes, template_attributes
 
     @api.multi
     def create_variant_ids(self):
