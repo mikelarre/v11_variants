@@ -30,7 +30,22 @@
                 </tree>
             </field>
         </record>
-
+        <record model="ir.ui.view" id="mrp_production_product_search_view">
+        <field name="name">mrp.production.product.line.search</field>
+        <field name="model">mrp.production.product.line</field>
+        <field name="arch" type="xml">
+            <search string="Scheduled Products search">
+                <field name="product_id"/>
+                <field name="product_qty"/>
+                <field name="product_uom"/>
+                <group expand="0" string="Manufacturing order">
+                    <filter name="product_id" string="Product" context="{'group_by':'product_id'}"/>
+                    <filter name="product_qty" string="Product quantity" context="{'group_by':'product_qty'}"/>
+                    <filter name="product_uom" string="Product unit of measure" context="{'group_by':'product_uom'}"/>
+                </group>
+            </search>
+        </field>
+        </record>
         <record model="ir.ui.view" id="mrp_production_product_lines">
             <field name="name">mrp.production.product.lines
                 .form</field>
@@ -75,7 +90,17 @@
                   parent="mrp.menu_mrp_manufacturing" sequence="10"
         />
 
-
+  <record id="mrp_production_product_lines_action" model="ir.actions.act_window">
+            <field name="name">Scheduled products</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">mrp.production.product.line</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+            <field name="_viewid" eval="False"/>
+    </record>
+    <menuitem action="mrp_production_product_lines_action"
+              id="menu_mrp_production_product_lines_action"
+              parent="mrp.menu_mrp_manufacturing" sequence="11" />
 
     </data>
 </odoo>
