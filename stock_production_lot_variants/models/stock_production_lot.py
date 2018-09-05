@@ -13,8 +13,8 @@ class StockProductionLot(models.Model):
 
     @api.depends('product_attribute_ids')
     def _compute_attribute_value_ids(self):
-        self.attribute_value_ids = self.product_attribute_ids.mapped(
-            'value_id')
+        atts = self.product_attribute_ids | self.product_template_attribute_ids
+        self.attribute_value_ids = atts.mapped('value_id')
 
     @api.model
     def _build_attributes_domain(self, product_id,
@@ -49,23 +49,41 @@ class StockProductionLot(models.Model):
     @api.multi
     def _create_lot(self, product_id, attributes):
         attribute_lines = []
+        template_attribute_lines = []
         template_id = product_id.product_tmpl_id
 
+        # TODO change lot name build method
         lot_id = self.create({
             'product_tmpl_id': template_id.id,
             'product_id': product_id.id,
-            'name': 'LOT//' + product_id.name
+            'name': 'LOT///' + product_id.name
         })
         for attribute in attributes:
-            attribute_lines.append(
-                (0, 0, {
-                    'owner_id': lot_id.id,
-                    'owner_model': 'stock.production.lot',
-                    'product_tmpl_id': template_id.id,
+            attr = template_id.attribute_line_ids.filtered(
+                lambda x: x.attribute_id == attribute.attribute_id)
+            if attr.attribute_id.create_variant:
+                attribute_lines.append(
+                    (0, 0, {
+                        'owner_id': lot_id.id,
+                        'owner_model': 'stock.production.lot',
+                        'product_tmpl_id': template_id.id,
 
-                    'attribute_id': attribute.attribute_id.id,
-                    'value_id': attribute.value_id.id,
-                    'custom_value': attribute.custom_value
-                }))
-        lot_id.write({'product_attribute_ids': attribute_lines})
+                        'attribute_id': attribute.attribute_id.id,
+                        'value_id': attribute.value_id.id,
+                        'custom_value': attribute.custom_value
+                    }))
+            elif attr.attribute_id:
+                template_attribute_lines.append(
+                    (0, 0, {
+                        'template_owner_id': lot_id.id,
+                        'owner_model': 'stock.production.lot',
+                        'product_tmpl_id': template_id.id,
+
+                        'attribute_id': attribute.attribute_id.id,
+                        'value_id': attribute.value_id.id,
+                        'custom_value': attribute.custom_value
+                    }))
+        lot_id.write({
+            'product_attribute_ids': attribute_lines,
+            'product_template_attribute_ids': template_attribute_lines})
         return lot_id

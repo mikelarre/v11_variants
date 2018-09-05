@@ -28,6 +28,7 @@ class MrpProductProduce(models.TransientModel):
             return super().check_finished_move_lots()
         except UserError:
             lot_obj = self.env['stock.production.lot']
-            attributes = self.production_id.product_attribute_ids
+            attributes = self.production_id.product_attribute_ids | \
+                         self.production_id.product_template_attribute_ids
             self.lot_id = lot_obj._create_lot(self.product_id, attributes)
             return super().check_finished_move_lots()
