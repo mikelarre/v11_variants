@@ -11,6 +11,26 @@ class StockProductionLot(models.Model):
         'product.attribute.value', string='Attributes',
         compute='_compute_attribute_value_ids')
 
+    @api.model
+    def create(self, values):
+        value_obj = self.env['product.attribute.value']
+        for line in values.get('product_attribute_ids', []) + values.get(
+                'product_template_attribute_ids', []):
+            value = value_obj.browse(line[2]['value_id'])
+            line[2].update({'attribute_id': value.attribute_id.id})
+        return super(StockProductionLot, self).create(values)
+
+    @api.multi
+    def write(self, values):
+        value_obj = self.env['product.attribute.value']
+        for line in values.get('product_attribute_ids', []) + values.get(
+                'product_template_attribute_ids', []):
+            if line[0] == 0:
+                value = value_obj.browse(line[2]['value_id'])
+                line[2].update({'attribute_id': value.attribute_id.id})
+
+        return super(StockProductionLot, self).write(values)
+
     @api.depends('product_attribute_ids')
     def _compute_attribute_value_ids(self):
         atts = self.product_attribute_ids | self.product_template_attribute_ids

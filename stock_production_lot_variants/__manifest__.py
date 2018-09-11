@@ -5,7 +5,7 @@
     "version": "11.0.2.0.0",
     "license": "AGPL-3",
     "depends": [
-        "stock",
+        "stock", "product_variants_no_automatic_creation",
     ],
     "author": "AvanzOSC",
     "website": "http://www.avanzosc.es",
