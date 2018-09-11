@@ -78,7 +78,7 @@ class MrpProduction(models.Model):
     @api.onchange('product_tmpl_id')
     def onchange_product_tmpl_id(self):
         res = super(MrpProduction, self).onchange_product_tmpl_id()
-        self.product_uom = self.product_tmpl_id.uom_id
+        self.product_uom_id = self.product_tmpl_id.uom_id
         self.bom_id = self.env['mrp.bom']._bom_find(
             product_tmpl=self.product_tmpl_id)
         self.routing_id = self.bom_id.routing_id
@@ -172,7 +172,7 @@ class MrpProduction(models.Model):
                     'product_template_attribute_ids': tmpl_attribute_ids,
                     'product_qty': line_data['qty'],
                     'bom_line_id': bom_line.id,
-                    'product_uom': bom_line.product_uom_id.id,
+                    'product_uom_id': bom_line.product_uom_id.id,
                     'production_id': production.id,
                 }
                 prod_line_obj.create(prod_line)
@@ -248,5 +248,5 @@ class MrpProductionProductLine(models.Model):
     def onchange_product_tmpl_id(self):
         res = super(MrpProductionProductLine, self).onchange_product_tmpl_id()
         self.name = self.product_id.name or self.product_tmpl_id.name
-        self.product_uom = self.product_tmpl_id.uom_id
+        self.product_uom_id = self.product_tmpl_id.uom_id
         return res
