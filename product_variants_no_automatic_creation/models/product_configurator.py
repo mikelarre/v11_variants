@@ -44,7 +44,7 @@ class ProductConfigurator(models.AbstractModel):
         # First, empty current list
         self.product_attribute_ids = [
             (2, x.id) for x in self.product_attribute_ids]
-        self.product_attribute_ids = [
+        self.product_template_attribute_ids = [
             (2, x.id) for x in self.product_template_attribute_ids]
         if not self.product_tmpl_id.attribute_line_ids:
             self.product_id = self.product_tmpl_id.product_variant_ids
@@ -117,8 +117,8 @@ class ProductConfigurator(models.AbstractModel):
         # First, empty current list
         self.product_attribute_ids = [
             (2, x.id) for x in self.product_attribute_ids]
-        self.product_attribute_ids = [
-            (2, x.id) for x in self.product_template_attribute_ids]
+        # self.product_template_attribute_ids = [
+        #     (2, x.id) for x in self.product_template_attribute_ids]
         if self.product_id:
             attribute_list, template_attributes = (
                 self.product_id._get_product_attributes_values_dict())
@@ -126,18 +126,18 @@ class ProductConfigurator(models.AbstractModel):
                 val['product_tmpl_id'] = self.product_id.product_tmpl_id
                 val['owner_model'] = self._name
                 val['owner_id'] = self.id
-            for val in template_attributes:
-                val['product_tmpl_id'] = self.product_id.product_tmpl_id
-                val['owner_model'] = self._name
-                val['template_owner_id'] = self.id
+            # for val in template_attributes:
+            #     val['product_tmpl_id'] = self.product_id.product_tmpl_id
+            #     val['owner_model'] = self._name
+            #     val['template_owner_id'] = self.id
             product = self.product_id
             if self._fields.get('partner_id'):
                 # If our model has a partner_id field, language is got from it
                 product = self.env['product.product'].with_context(
                     lang=self.partner_id.lang).browse(self.product_id.id)
             self.product_attribute_ids = [(0, 0, x) for x in attribute_list]
-            self.product_template_attribute_ids = [(0, 0, x) for x in
-                                                   template_attributes]
+            # self.product_template_attribute_ids = [(0, 0, x) for x in
+            #                                        template_attributes]
             self.name = self._get_product_description(
                 product.product_tmpl_id, product, product.attribute_value_ids)
 
