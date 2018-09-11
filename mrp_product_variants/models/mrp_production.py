@@ -169,7 +169,8 @@ class MrpProduction(models.Model):
                     'product_id': product.id,
                     'product_attribute_ids': [
                         (0, 0, x) for x in product_attribute_ids],
-                    'product_template_attribute_ids': tmpl_attribute_ids,
+                    'product_template_attribute_ids': [
+                        (0, 0, x) for x in tmpl_attribute_ids],
                     'product_qty': line_data['qty'],
                     'bom_line_id': bom_line.id,
                     'product_uom_id': bom_line.product_uom_id.id,
