@@ -113,7 +113,7 @@ class MrpProduction(models.Model):
         for production in self:
             bom_obj = self.env['mrp.bom'].with_context(production=production)
             #  unlink product_lines
-            production.product_lines.unlink()
+            production.product_line_ids.unlink()
             #  unlink workcenter_lines
             #production.workcenter_lines.unlink()
             #  search BoM structure and route
