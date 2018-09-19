@@ -38,10 +38,10 @@ class StockProductionLot(models.Model):
 
     @api.model
     def _build_attributes_domain(self, product_id,
-                                 product_attributes):
+                                 product_attributes, tmpl_attributes):
         domain = []
-        cont = 0
-        value_obj = self.env['product.attribute.value']
+        p_cont = 0
+        t_cont = 0
         if product_id:
             domain.append(('product_id', '=', product_id.id))
             for attr_line in product_attributes:
@@ -51,18 +51,26 @@ class StockProductionLot(models.Model):
                     value_id = attr_line.value_id.id
                 if value_id:
                     domain.append(('attribute_value_ids', '=', value_id))
-                    cont += 1
-        return domain, cont
+                    p_cont += 1
+            for attr_line in tmpl_attributes:
+                if isinstance(attr_line, dict):
+                    value_id = attr_line.get('value_id')
+                else:
+                    value_id = attr_line.value_id.id
+                if value_id:
+                    domain.append(('attribute_value_ids', '=', value_id))
+                    t_cont += 1
+        return domain, p_cont, t_cont
 
     @api.multi
-    def _find_lot(self, product_id, attributes):
+    def _find_lot(self, product_id, attributes, tmpl_attributes):
         if product_id:
-            domain, cont = self._build_attributes_domain(
-                product_id, attributes)
+            domain, p_cont, t_cont = self._build_attributes_domain(
+                product_id, attributes, tmpl_attributes)
             lots = self.search(domain)
             # Filter the product with the exact number of attributes values
             for lot in lots:
-                if len(lot.attribute_value_ids) == cont:
+                if len(lot.attribute_value_ids) == p_cont + t_cont:
                     return lot.id
         return False
 

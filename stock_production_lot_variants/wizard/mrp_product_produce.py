@@ -19,7 +19,10 @@ class MrpProductProduce(models.TransientModel):
                 move = stock_obj.browse(line['move_id'])
                 production_product_line = move.production_product_line_id
                 attributes = production_product_line.product_attribute_ids
-                line['lot_id'] = lot_obj._find_lot(product_id, attributes)
+                tmpl_attributes = \
+                    production_product_line.product_template_attribute_ids
+                line['lot_id'] = lot_obj._find_lot(product_id, attributes,
+                                                   tmpl_attributes)
         return res
 
     @api.multi
