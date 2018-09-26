@@ -80,11 +80,11 @@ class StockProductionLot(models.Model):
         template_attribute_lines = []
         template_id = product_id.product_tmpl_id
 
-        # TODO change lot name build method
         lot_id = self.create({
             'product_tmpl_id': template_id.id,
             'product_id': product_id.id,
-            'name': 'LOT///' + product_id.name
+            'name': self.env['ir.sequence'].next_by_code(
+                'sale.order') or _('New'),
         })
         for attribute in attributes:
             attr = template_id.attribute_line_ids.filtered(

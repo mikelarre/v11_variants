@@ -11,6 +11,7 @@
     "website": "http://www.avanzosc.es",
     "category": "Manufacturing",
     "data": [
+         "data/ir_sequence_data.xml",
          "views/stock_production_lot_views.xml",
     ],
     'demo': [],
