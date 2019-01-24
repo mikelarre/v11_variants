@@ -18,7 +18,7 @@ class ProcurementOrder(models.Model):
         move_dest_id = values.get('move_dest_ids', self.env[
             'stock.move'])
         product_attributes = move_dest_id.sale_line_id.product_attribute_ids
-        product_attribute_ids = \
+        product_attribute_ids, template_attribute_ids = \
             product_id.with_context(
                 all_attributes=product_attributes
             )._get_product_attributes_values_dict()

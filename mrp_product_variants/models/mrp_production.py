@@ -7,6 +7,7 @@ class MrpProduction(models.Model):
     _inherit = ['mrp.production', 'product.configurator']
     _name = 'mrp.production'
 
+    product_tmpl_id = fields.Many2one(related=False, readonly=False)
     product_id = fields.Many2one(required=False)
 
     @api.model

@@ -161,7 +161,7 @@
                         <label for="product_qty" />
                         <div>
                             <field name="product_qty" class="oe_inline" />
-                            <field name="product_uom_id"
+                            <field name="product_uom"
                                    groups="product.group_uom"
                                    class="oe_inline" />
                         </div>
