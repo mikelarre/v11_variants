@@ -44,7 +44,7 @@
             </field>
         </record>
 
-        <record model="ir.ui.view" id="product_attribute_value_search_view">
+       <!-- <record model="ir.ui.view" id="product_attribute_value_search_view">
             <field name="name">product.attribute.value.search</field>
             <field name="model">product.attribute.value</field>
             <field name="arch" type="xml">
@@ -58,6 +58,6 @@
                     </group>
                 </search>
             </field>
-        </record>
+        </record>-->
     </data>
 </openerp>

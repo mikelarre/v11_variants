@@ -4,11 +4,10 @@
 {
     "name": "MRP - Product variants",
     "summary": "Customized product in manufacturing",
-    "version": "11.0.2.0.0",
+    "version": "12.0.2.0.0",
     "license": "AGPL-3",
     "depends": [
         "product",
-        "product_variants_no_automatic_creation",
         "mrp_scheduled_products",
         "product_variants_types"
     ],

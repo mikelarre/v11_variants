@@ -100,7 +100,7 @@ class MrpProduction(models.Model):
 
     def button_create_purchase_order(self):
         buy = self.env.ref(
-            'purchase.route_warehouse0_buy', False)
+            'purchase_stock.route_warehouse0_buy', False)
         productions = [self]
         while productions:
             for production in productions:

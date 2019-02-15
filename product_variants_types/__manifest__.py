@@ -4,10 +4,9 @@
 
 {
     "name": "Product Variants with Attribute Types",
-    "version": "11.0.1.0.0",
+    "version": "12.0.1.0.0",
     "license": "AGPL-3",
     "depends": [
-        "product_variants_no_automatic_creation",
         "product_attribute_types",
     ],
     "author": "OdooMRP team, "
